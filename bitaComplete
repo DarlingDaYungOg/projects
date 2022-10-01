@@ -1,0 +1,170 @@
+#include "TXLib.h"
+int winHeight = 800;
+int winWidth = 600;
+double acceleration = 0.5;
+int score = 3;
+
+struct Ball
+    {
+    int x = winHeight / 2, y = winWidth / 2;
+    int r = 10;
+    double dx = 5, dy = 5;
+
+    void draw();
+    void move(int *scoreL, int *scoreR);
+    };
+
+struct Bita
+    {
+    int bitaWidth = 20, bitaHeight = 120;
+    double y = winWidth / 2 - bitaHeight / 2;
+    int offset = 20;
+    double dy = 0;
+
+    void draw();
+    void move();
+    };
+
+void ggame();
+
+int main()
+    {
+    txCreateWindow (winHeight, winWidth);
+    txBegin();
+    txTextCursor (false);
+
+    ggame();
+
+
+    }
+
+void ggame()
+    {
+    int scoreL = 0;
+    int scoreR = 0;
+
+    Bita bitaLeft, bitaRight;
+    bitaRight.offset = winHeight - bitaLeft.offset * 2;
+    Ball ball;
+
+    while ((scoreL + scoreR != score))
+        {
+        bitaLeft.dy *= 0.9;
+        bitaRight.dy *= 0.9;
+        txSetFillColor (TX_BLUE);
+        txClear();
+
+        txSelectFont ("System",40);
+        char str [2];
+        sprintf(str, "%d", scoreR);
+        txTextOut  (winHeight/2-100,10,str);
+        sprintf(str, "%d", scoreL);
+        txTextOut  (winHeight/2+100,10,str);
+
+        bitaRight.draw();
+        bitaLeft.draw();
+        ball.draw();
+        txSleep(25);
+        bitaLeft.move();
+        bitaRight.move();
+        ball.move (&scoreL, &scoreR);
+
+        if (txGetAsyncKeyState ('W') and (bitaLeft.dy > -10)){
+            bitaLeft.dy--;
+        }
+        if (txGetAsyncKeyState ('S') and (bitaLeft.dy < 10)) {
+            bitaLeft.dy++;
+        }
+        if (txGetAsyncKeyState (VK_UP) and (bitaRight.dy > -10)){
+            bitaRight.dy--;
+        }
+        if (txGetAsyncKeyState (VK_DOWN) and (bitaRight.dy < 10)) {
+            bitaRight.dy++;
+        }
+
+        if (ball.x - ball.r <= bitaLeft.offset + bitaLeft.bitaWidth && ball.y >= bitaLeft.y && ball.y <= bitaLeft.y + bitaLeft.bitaHeight)
+            {
+            ball.x = bitaLeft.offset + bitaLeft.bitaWidth + ball.r;
+            ball.dx = -ball.dx * 1.05;
+            }
+        if (ball.x + ball.r >= bitaRight.offset && ball.y >= bitaRight.y && ball.y <= bitaRight.y + bitaLeft.bitaHeight)
+            {
+            ball.x = bitaRight.offset - ball.r;
+            ball.dx = -ball.dx * 1.05;
+            }
+        if (txGetAsyncKeyState ('P'))
+            {
+            while (!txGetAsyncKeyState (VK_SPACE))
+                {
+                txTextOut  (winHeight/2-250, winWidth / 2,"PAUSE");
+                txRedrawWindow ();
+                txSleep(15);
+                }
+            }
+        }
+    txSelectFont ("System",70);
+    if (scoreL > scoreR)
+        txTextOut  (winHeight / 2 - 250, winWidth / 2,"Right bat wins");
+    if (scoreR > scoreL)
+        txTextOut  (winHeight/2 - 250,winWidth / 2,"Left bat wins");
+    }
+void Bita::draw()
+    {
+    txSetFillColor (TX_YELLOW);
+    txRectangle (offset, y, offset + bitaWidth, y + bitaHeight);
+    }
+
+void Bita::move()
+    {
+    y += dy;
+    if (y <= 0 || y + bitaHeight >= winWidth)
+        dy = -dy;
+    if (y <= 0)
+        {
+        y = 0;
+        dy = 0;
+        }
+    if (y + bitaHeight >= winWidth)
+        {
+        y = winWidth - bitaHeight;
+        dy = 0;
+        }
+    }
+
+void Ball::draw()
+    {
+    txSetFillColor (TX_GREEN);
+    txCircle(x, y, r);
+    }
+
+void Ball::move (int *scoreL, int *scoreR)
+    {
+    y += dy;
+    x += dx;
+
+    if (x < 0 - r) {
+        dx = -dx;
+        dx = 5;
+        x = winHeight / 2;
+        y = winWidth / 2;
+        *scoreL +=1;
+        }
+
+    if (x > winHeight + r) {
+        dx = -dx;
+        dx = 5;
+        x = winHeight / 2;
+        y = winWidth / 2;
+        *scoreR +=1;
+        }
+
+    if (y < r) {
+        dy = -dy;
+        y = r;
+        }
+
+    if (y > winWidth-r) {
+        dy = -dy;
+        y = winWidth - r;
+        }
+    }
