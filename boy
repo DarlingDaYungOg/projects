@@ -1,12 +1,13 @@
 #include "TXLib.h"
 int t = 0;
+int pause = 20;
 int winLength = 800;
 int winWidth = 600;
 
 struct Boy {
     int dir = 0;
-    int dx = 0, dy = 0, x = 100, y = 100;
-    int areaLength, areaWidth;
+    int vx = 0, vy = 0, x = 550, y = 100;
+    int DCareaLength, DCareaWidth;
     HDC pic;
 
     void draw();
@@ -22,56 +23,55 @@ int main() {
     txBegin();
 
     Boy boy;
-    boy.pic = txLoadImage("sprite.bmp");
-    boy.areaLength = 30;
-    boy.areaWidth = 31;
+    boy.pic = txLoadImage("spriteBoy.bmp");
+    boy.DCareaLength = 30;
+    boy.DCareaWidth = 31;
 
 
     while (true) {
         txSetFillColor (TX_GREEN);
         txClear();
         boy.draw();
-        txSleep (50);
+        txSleep (pause);
         if (txGetAsyncKeyState ('W')){
-            boy.dx = 0;
-            boy.dy = -5;
+            boy.vx = 0;
+            boy.vy = -4;
             boy.dir = 3;
         }
         if (txGetAsyncKeyState ('S')){
-            boy.dx = 0;
-            boy.dy = 5;
+            boy.vx = 0;
+            boy.vy = 4;
             boy.dir = 0;
         }
         if (txGetAsyncKeyState ('A')){
-            boy.dx = -5;
-            boy.dy = 0;
+            boy.vx = -4;
+            boy.vy = 0;
             boy.dir = 1;
         }
         if (txGetAsyncKeyState ('D')){
-            boy.dx = 5;
-            boy.dy = 0;
+            boy.vx = 4;
+            boy.vy = 0;
             boy.dir = 2;
         }
         boy.move();
-
+        t += 1;
     }
 }
 
 void Boy::draw() {
-     txTransparentBlt (txDC(), x, y, areaLength, areaWidth, pic, t % 3 * 31, 32 * dir, TX_WHITE);
+     txTransparentBlt (txDC(), x, y, DCareaLength, DCareaWidth, pic, t / 5 % 3 * 31, 32 * dir, TX_WHITE);
 }
 
 void Boy::move() {
-    x += dx;
-    y += dy;
+    x += vx;
+    y += vy;
 
-    if (x <= 0 - areaLength)
+    if (x <= 0 - DCareaLength)
        x = winLength;
-    if (x + areaLength >= winLength)
-    //    x = winLength - areaLength;
-    //if (y <= 0)
-      //  y = 0;
-    //if (y + areaWidth >= winWidth)
-        //y = winWidth - areaWidth;
-    t += 1;
+    else if (x >= winLength)
+        x = 0 - DCareaLength;
+    else if (y <= 0 - DCareaWidth)
+        y = winWidth;
+    else if (y >= winWidth)
+        y = 0 - DCareaWidth;
 }
