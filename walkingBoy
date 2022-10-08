@@ -1,0 +1,102 @@
+#include "TXLib.h"
+int t = 0;
+int pause = 20;
+int winLength = 800;
+int winWidth = 600;
+
+struct Boy {
+    int dir = 0;
+    int vx = 0, vy = 0, x = 550, y = 100;
+    int DCareaLength, DCareaWidth;
+    HDC pic;
+
+    void draw();
+    void move();
+};
+
+int main() {
+    txCreateWindow (800, 600);
+    txTextCursor (false);
+    txBegin();
+
+    Boy boy;
+    boy.pic = txLoadImage("spriteBoy.bmp");
+    boy.DCareaLength = 30;
+    boy.DCareaWidth = 31;
+
+    txSetFillColor (TX_GREEN);
+    txClear();
+    boy.draw();
+    while (true) {
+        if (txGetAsyncKeyState ('W')){
+            while (txGetAsyncKeyState ('W')){
+                txSetFillColor (TX_GREEN);
+                txClear();
+                boy.draw();
+                txSleep (pause);
+                boy.vx = 0;
+                boy.vy = -4;
+                boy.dir = 3;
+                boy.move();
+                t += 1;
+            }
+        }
+        else if (txGetAsyncKeyState ('S')){
+            while (txGetAsyncKeyState ('S')){
+                txSetFillColor (TX_GREEN);
+                txClear();
+                boy.draw();
+                txSleep (pause);
+                boy.vx = 0;
+                boy.vy = 4;
+                boy.dir = 0;
+                boy.move();;
+                t += 1;
+            }
+        }
+        else if (txGetAsyncKeyState ('A')){
+            while (txGetAsyncKeyState ('A')){
+                txSetFillColor (TX_GREEN);
+                txClear();
+                boy.draw();
+                txSleep (pause);
+                boy.vx = -4;
+                boy.vy = 0;
+                boy.dir = 1;
+                boy.move();
+                t += 1;
+            }
+        }
+        else if (txGetAsyncKeyState ('D')){
+            while (txGetAsyncKeyState ('D')){
+                txSetFillColor (TX_GREEN);
+                txClear();
+                boy.draw();
+                txSleep (pause);
+                boy.vx = 4;
+                boy.vy = 0;
+                boy.dir = 2;
+                boy.move();
+                t += 1;
+            }
+        }
+    }
+}
+
+void Boy::draw() {
+     txTransparentBlt (txDC(), x, y, DCareaLength, DCareaWidth, pic, t / 3 % 3 * 31, 32 * dir, TX_WHITE);
+}
+
+void Boy::move() {
+    x += vx;
+    y += vy;
+
+    if (x <= 0 - DCareaLength)
+       x = winLength;
+    else if (x >= winLength)
+        x = 0 - DCareaLength;
+    else if (y <= 0 - DCareaWidth)
+        y = winWidth;
+    else if (y >= winWidth)
+        y = 0 - DCareaWidth;
+}
