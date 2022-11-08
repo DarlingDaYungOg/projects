@@ -1,0 +1,49 @@
+#include "TXLib.h"
+
+struct Ball {
+    double alfa = 1, speed = 5;
+    double xs = 400, ys = 400;
+    int R;
+
+    void move();
+    void draw();
+};
+
+int main() {
+    txCreateWindow (800, 800);
+    txTextCursor (false);
+    txBegin();
+
+    Ball ball;
+    ball.R = 10;
+    while (true) {
+        txSetFillColor (TX_BLACK);
+        txClear();
+        ball.move();
+        ball.draw();
+        if txGetAsyncKeyState(VK_UP)
+            ball.speed += 0.25;
+        if txGetAsyncKeyState(VK_DOWN)
+            ball.speed -= 0.25;
+        if txGetAsyncKeyState(VK_LEFT)
+            ball.alfa += 0.1;
+        if txGetAsyncKeyState(VK_RIGHT)
+            ball.alfa -= 0.1;
+        txSleep(10);
+    }
+}
+
+void Ball::move() {
+    if (xs - R <= 0 || xs + R >= 800)
+        alfa = txPI - alfa;
+    if (ys - R <= 0 || ys + R >= 800)
+        alfa = -alfa;
+    xs += cos(alfa) * speed;
+    ys -= sin(alfa) * speed;
+}
+
+void Ball::draw() {
+    txSetFillColor (TX_YELLOW);
+    txCircle (xs, ys, 10);
+    txLine (xs, ys, xs + cos(alfa) * speed, ys - sin(alfa) * speed);
+}
